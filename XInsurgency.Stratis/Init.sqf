@@ -26,3 +26,13 @@ X39_XLib_ShowFactionNamesAndRank_EH_Draw3D = addMissionEventHandler ["Draw3D", {
 systemChat "It could happen that AMMO-CACHES spawn inside of the base";
 
 Mission_var_VehicleSpawnerEnabled = (paramsArray select 0) > 0;
+
+//Auto-Load saved inventory
+if(!isDedicated) then {
+	[] spawn {
+		waitUntil{!isNil {player}};
+		waitUntil{!isNull player};
+		waitUntil{alive player};
+		player addEventHandler["Respawn", {if(!isNil "Mission_var_SavedInventory") then {[_this select 0, Mission_var_SavedInventory] call BIS_fnc_loadInventory;};];
+	};
+};

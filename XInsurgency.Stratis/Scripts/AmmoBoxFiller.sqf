@@ -1,4 +1,4 @@
-if(!isServer) exitWith {};
+if(isDedicated) exitWith {};
 
 _ammoBox = _this select 0;
 _part = _this select 1;
@@ -12,6 +12,8 @@ if(typeName _part != "ARRAY") then
 		_part = [_part];
 	};
 };
+_ammoBox addAction ["Save Loadout", {[player, [missionNamespace, "Mission_var_SavedInventory"]] call BIS_fnc_saveInventory }];
+
 /* _part usage (doesnt matters if array or variable):
  * _part == 0 (or empty)
  *		Generate complete ammoBox
