@@ -1,3 +1,4 @@
+systemChat "XInsurgency - Version 1.1";
 hint "Welcome to X39s Insurgency! Mission Start could have large delays depending on map size.";
 [Insurgency_Base] call X39_GM_Insurgency_fnc_module_X39_GM_Insurgency;
 
