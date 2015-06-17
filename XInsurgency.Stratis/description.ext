@@ -1,0 +1,122 @@
+showCompass   = 1; 
+showGPS       = 1; 
+showMap       = 1; 
+showWatch     = 1; 
+disabledAI    = 1; 
+
+respawn = 3;
+respawnDelay = 15;
+respawnTemplates[] = {"Revive", "MenuPosition"};
+respawnOnStart = -1;
+
+onLoadName		= "XInsurgency";
+author			= "Cpt. HM Murdock | X39";
+onLoadMission	= "ALPHA 1.0";
+loadScreen		= "res\INS_1.paa";
+overviewText	= "X39s Insurgency is a game mode based on the classic insurgency from ArmA 2.<br />Your task is to clear the red squares on the map!<br />Good Luck Soldier!";
+enableDebugConsole = 1;
+saving = 0;
+
+class Header
+{
+	gameType = Coop;
+	minPlayers = 1;
+	maxPlayers = 53;
+}; 
+
+class Params 
+{
+	class EnableVehicleSpawner
+	{
+		title = "Enable VehicleSpawner";
+		values[] = {1, 0};
+		texts[] = {"true", "false"};
+		default = 0;
+	};
+}; 
+
+
+class X39_XLib_Function_TypeA{
+	scope = 0;
+	preInit = 0; // 1 to call the function upon mission start, before objects are initialized. Passed arguments are ["preInit"]
+	postInit = 0; // 1 to call the function upon mission start, after objects are initialized. Passed arguments are ["postInit"]
+	recompile = 0; // 1 to recompile the function upon mission start
+	ext = ".sqf"; // Set file type, can be ".sqf" or ".fsm" (meaning scripted FSM). Default is ".sqf".
+};
+class X39_XLib_Function_TypeB{
+	scope = 0;
+	preInit = 1; // 1 to call the function upon mission start, before objects are initialized. Passed arguments are ["preInit"]
+	postInit = 0; // 1 to call the function upon mission start, after objects are initialized. Passed arguments are ["postInit"]
+	recompile = 1; // 1 to recompile the function upon mission start
+	ext = ".sqf"; // Set file type, can be ".sqf" or ".fsm" (meaning scripted FSM). Default is ".sqf".
+};
+class X39_XLib_Function_TypeC{
+	scope = 0;
+	preInit = 0; // 1 to call the function upon mission start, before objects are initialized. Passed arguments are ["preInit"]
+	postInit = 1; // 1 to call the function upon mission start, after objects are initialized. Passed arguments are ["postInit"]
+	recompile = 1; // 1 to recompile the function upon mission start
+	ext = ".sqf"; // Set file type, can be ".sqf" or ".fsm" (meaning scripted FSM). Default is ".sqf".
+};
+class X39_XLib_Function_TypeD{
+	scope = 0;
+	preInit = 1; // 1 to call the function upon mission start, before objects are initialized. Passed arguments are ["preInit"]
+	postInit = 1; // 1 to call the function upon mission start, after objects are initialized. Passed arguments are ["postInit"]
+	recompile = 1; // 1 to recompile the function upon mission start
+	ext = ".sqf"; // Set file type, can be ".sqf" or ".fsm" (meaning scripted FSM). Default is ".sqf".
+};
+
+class CfgFunctions 
+{
+	class X39_XLib
+	{
+		class X39_Core
+		{
+			class getMapSize:X39_XLib_Function_TypeA						{file = "XLib\getMapSize.sqf";};
+			class getAllHousesOnMapPerGrid:X39_XLib_Function_TypeA			{file = "XLib\getAllHousesOnMapPerGrid.sqf";};
+			class scalarToBool:X39_XLib_Function_TypeA						{file = "XLib\intToBool.sqf";};
+		};
+	};
+	class X39_XLib_Modules
+	{
+		class X39_XLib_AmmoCaches
+		{
+			class X39_XLib_AmmoCaches:X39_XLib_Function_TypeA				{file = "AmmoCaches\X39_XLib_AmmoCaches.sqf";};
+			class X39_XLib_AmmoCaches_boxDestroyed:X39_XLib_Function_TypeA	{file = "AmmoCaches\boxDestroyed.sqf";};
+		};
+	};
+
+	class X39_GM_Insurgency
+	{
+		class ModuleFunctions
+		{
+			class module_X39_GM_Insurgency:X39_XLib_Function_TypeA			{file = "Insurgency\X39_GM_Insurgency_Module.sqf";};
+		};
+		class Functions_server
+		{
+			class createInsurgencyObject:X39_XLib_Function_TypeA			{file = "Insurgency\Server\createInsurgencyObject.sqf";};
+			class deleteInsurgencyObject:X39_XLib_Function_TypeA			{file = "Insurgency\Server\deleteInsurgencyObject.sqf";};
+			class setOwnerToCalculator:X39_XLib_Function_TypeA				{file = "Insurgency\Server\setOwnerToCalculator.sqf";};
+			class watchDog:X39_XLib_Function_TypeA							{file = "Insurgency\Server\watchDog.sqf";};
+		};
+		class Functions_client
+		{
+			class startInsurgencyWorker:X39_XLib_Function_TypeA				{file = "Insurgency\Client\startInsurgencyWorker.sqf";};
+			class createUnit:X39_XLib_Function_TypeA						{file = "Insurgency\Client\createUnit.sqf";};
+		};
+		class Functions_both
+		{
+			class updateInsurgencyObject:X39_XLib_Function_TypeA			{file = "Insurgency\Both\updateInsurgencyObject.sqf";};
+			class removeUnit:X39_XLib_Function_TypeA						{file = "Insurgency\Both\removeUnit.sqf";};
+		};
+	};
+	class Mission
+	{
+		class Generic
+		{
+			class AmmoBoxFiller:X39_XLib_Function_TypeA						{file = "Scripts\AmmoBoxFiller.sqf";};
+			class GetOutTeleportBack:X39_XLib_Function_TypeA				{file = "Scripts\GetOutTeleportBack.sqf";};
+			class VirtualAmmobox:X39_XLib_Function_TypeA					{file = "Scripts\VirtualAmmobox.sqf";};
+			class VehicleSpawner:X39_XLib_Function_TypeA					{file = "Scripts\VehicleSpawner.sqf";};
+		};
+	};
+};
