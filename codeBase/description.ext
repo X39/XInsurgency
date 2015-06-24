@@ -83,7 +83,7 @@ class CfgFunctions
 		{
 			class X39_XLib_AmmoCaches:X39_XLib_Function_TypeA				{file = "AmmoCaches\X39_XLib_AmmoCaches.sqf";};
 			class X39_XLib_AmmoCaches_boxDestroyed:X39_XLib_Function_TypeA	{file = "AmmoCaches\boxDestroyed.sqf";};
-			class X39_XLib_GarbageCollector:X39_XLib_Function_TypeC			[file = "XLib\X39_XLib_GarbageCollector.sqf";};
+			class X39_XLib_GarbageCollector:X39_XLib_Function_TypeC			{file = "XLib\X39_XLib_GarbageCollector.sqf";};
 		};
 	};
 
