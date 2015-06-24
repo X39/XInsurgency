@@ -2,10 +2,10 @@
 if(!isServer) exitWith {};
 _res = (_this select 0) spawn {
 	private["_checkRate", "_checkDeadUnits", "_checkDroppedItems", "_checkEmptyGroups", "_deadUnits", "_droppedItems"];
-	_checkRate			= (_this getVariable "checkRate");
-	_checkDeadUnits		= (_this getVariable "checkDeadUnits") call X39_XLib_fnc_IntToBool;
-	_checkDroppedItems	= (_this getVariable "checkDroppedItems") call X39_XLib_fnc_IntToBool;
-	_checkEmptyGroups	= (_this getVariable "checkEmptyGroups") call X39_XLib_fnc_IntToBool;
+	_checkRate				= 120;
+	_checkDeadUnits		= true;
+	_checkDroppedItems	= true;
+	_checkEmptyGroups		= false;
 	_deadUnits = [];
 	_droppedItems = [];
 	_keepGroups = [];
