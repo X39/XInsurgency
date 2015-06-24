@@ -216,7 +216,8 @@ if(isServer) then
 							{
 								_exactPos = _x buildingPos floor random MAX_BUILDING_POS;
 							};
-							_obj = ("Land_File1_F" createVehicle position _x) setPos _exactPos;
+							_obj = "Land_File1_F" createVehicle position _x;
+                            _obj setPos _exactPos;
 							_obj setVariable ["isIntel", true, true];
 							if(!isMultiplayer) then
 							{
