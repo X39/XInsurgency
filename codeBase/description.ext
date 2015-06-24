@@ -115,7 +115,6 @@ class CfgFunctions
 	{
 		class Generic
 		{
-			class AmmoBoxFiller:X39_XLib_Function_TypeA						{file = "Scripts\AmmoBoxFiller.sqf";};
 			class GetOutTeleportBack:X39_XLib_Function_TypeA				{file = "Scripts\GetOutTeleportBack.sqf";};
 			class VirtualAmmobox:X39_XLib_Function_TypeA					{file = "Scripts\VirtualAmmobox.sqf";};
 			class VehicleSpawner:X39_XLib_Function_TypeA					{file = "Scripts\VehicleSpawner.sqf";};
