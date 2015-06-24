@@ -72,6 +72,7 @@ class CfgFunctions
 		class X39_Core
 		{
 			class getMapSize:X39_XLib_Function_TypeA						{file = "XLib\getMapSize.sqf";};
+            class getAllHousesOnMap:X39_XLib_Function_TypeA					{file = "XLib\getAllHousesOnMap.sqf";};
 			class getAllHousesOnMapPerGrid:X39_XLib_Function_TypeA			{file = "XLib\getAllHousesOnMapPerGrid.sqf";};
 			class scalarToBool:X39_XLib_Function_TypeA						{file = "XLib\intToBool.sqf";};
 		};
