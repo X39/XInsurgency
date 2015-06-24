@@ -1,4 +1,4 @@
-systemChat "XInsurgency - Version 1.1 - hotfix 1";
+systemChat "XInsurgency - Version 1.2";
 hint "Welcome to X39s Insurgency! Mission Start could have large delays depending on map size.";
 [Insurgency_Base] call X39_GM_Insurgency_fnc_module_X39_GM_Insurgency;
 
@@ -34,6 +34,6 @@ if(!isDedicated) then {
 		waitUntil{!isNil {player}};
 		waitUntil{!isNull player};
 		waitUntil{alive player};
-		player addEventHandler["Respawn", {if(!isNil "Mission_var_SavedInventory") then {[_this select 0, Mission_var_SavedInventory] call BIS_fnc_loadInventory;};}];
+		player addEventHandler["Respawn", {if(!isNil "Mission_var_SavedInventory") then {[_this select 0, missionNamespace, Mission_var_SavedInventory] call BIS_fnc_loadInventory;};}];
 	};
 };
