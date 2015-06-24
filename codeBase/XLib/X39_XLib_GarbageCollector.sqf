@@ -1,4 +1,4 @@
-#include "\X39_XLib_Modules\default.hpp"
+#include "default.hpp"
 if(!isServer) exitWith {};
 _res = (_this select 0) spawn {
 	private["_checkRate", "_checkDeadUnits", "_checkDroppedItems", "_checkEmptyGroups", "_deadUnits", "_droppedItems"];
