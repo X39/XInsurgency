@@ -88,7 +88,7 @@ if(isServer) then
 			_cache = "O_supplyCrate_F" createVehicle [0, 0, 0];
 			_cache addEventHandler["HandleDamage", {
 					_veh = _this select 0;
-					if(_this select 4 == "SatchelCharge_Remote_Ammo") then
+					if((_this select 4) in ["SatchelCharge_Remote_Ammo", "SatchelCharge_Remote_Ammo_Scripted", "DemoCharge_Remote_Ammo_Scripted"]) then
 					{
 						X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches set[X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches find _veh, -1];
 						X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches = X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches - [-1];
