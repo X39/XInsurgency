@@ -81,8 +81,6 @@ if(isServer) then
 		_ammoCacheCount = 0;
 		X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches = [];
 		X39_XLib_Modules_var_X39_XLib_AmmoCaches_MarkerDistances = [900, 700, 500, 400, 300, 200, 100, 50];
-		publicVariable "X39_XLib_Modules_var_X39_XLib_AmmoCaches_MarkerDistances";
-		publicVariable "X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCacheCountTarget";
 		while{_ammoCacheCount < X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCacheCountTarget} do
 		{
 			_cache = "O_supplyCrate_F" createVehicle [0, 0, 0];
@@ -163,6 +161,9 @@ if(isServer) then
 				};
 			};
 		};
+		publicVariable "X39_XLib_Modules_var_X39_XLib_AmmoCaches_MarkerDistances";
+		publicVariable "X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCacheCountTarget";
+		publicVariable "X39_XLib_Modules_var_X39_XLib_AmmoCaches_EndMission";
 		publicVariable "X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches";
 		
 		switch (_dropIntelType) do {
