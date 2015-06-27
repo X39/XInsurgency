@@ -54,9 +54,8 @@ if(isServer) then
 		_logic = _this select 0;
 		_mapSize = _logic getVariable ["overrideMapSize", -1];
 		X39_XLib_Modules_var_X39_XLib_AmmoCaches_EndMission = _logic getVariable ["EndMission", ""];
-		_intelRate = [] call compile (_logic getVariable ["IntelRate", 1]);
-		if(_intelRate > 1) exitWith {["_intelRate needs to be < 1!"] call BIS_fnc_halt;};
-		_intelRate = 100 * _intelRate;
+		_intelRate = (_logic getVariable ["IntelRate", 100]);
+		if(_intelRate > 100) exitWith {["_intelRate needs to be < 100!"] call BIS_fnc_halt;};
 		_houses = [_mapSize, 100, false, 3, true, true] call X39_XLib_fnc_getAllHousesOnMapPerGrid;
 		if(_mapSize == -1) then
 		{
@@ -76,7 +75,7 @@ if(isServer) then
 			case 4:{_enemySide = CIVILIAN;		_enemySideTypeOfPrefix = toArray "C_";};
 			default{_enemySide = RESISTANCE;	_enemySideTypeOfPrefix = toArray "I_";};
 		};
-		X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCacheCountTarget = [] call compile (_logic getVariable ["Count", 10]);
+		X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCacheCountTarget = (_logic getVariable ["Count", 10]);
 		_dropIntelType = _logic getVariable ["DropIntelType", 0];
 		_ammoCacheCount = 0;
 		X39_XLib_Modules_var_X39_XLib_AmmoCaches_ammoCaches = [];

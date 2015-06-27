@@ -11,7 +11,7 @@ respawnOnStart = -1;
 
 onLoadName		= "XInsurgency";
 author			= "Cpt. HM Murdock | X39";
-onLoadMission	= "ALPHA 1.0";
+onLoadMission	= "ALPHA 1.2";
 loadScreen		= "res\INS_1.paa";
 overviewText	= "X39s Insurgency is a game mode based on the classic insurgency from ArmA 2.<br />Your task is to clear the red squares on the map!<br />Good Luck Soldier!";
 enableDebugConsole = 1;
@@ -32,6 +32,34 @@ class Params
 		values[] = {1, 0};
 		texts[] = {"true", "false"};
 		default = 0;
+	};
+	class AmmoCachesCount
+	{
+		title = "Count";
+		values[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+		texts[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+		default = 5;
+	};
+	class DropIntelType
+	{
+		title = "Intel Type";
+		values[] = {0, 1};
+		texts[] = {"Dropped by dead enemies", "PrePlaced"};
+		default = 0;
+	};
+	class DropIntelRate
+	{
+		title = "Intel Rate";
+		values[] = {30, 40, 50, 60, 70};
+		texts[] = {"30%", "40%", "50%", "60%", "70%"};
+		default = 40;
+	};
+	class EnemyRespawnTimeout
+	{
+		title = "Enemy respawn timeout";
+		values[] = {120, 180, 240, 300, 360};
+		texts[] = {"2 min", "3 min", "4 min", "5 min", "6 min"};
+		default = 180;
 	};
 }; 
 

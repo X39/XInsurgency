@@ -977,7 +977,7 @@ class Mission
 					leader=1;
 					skill=0.60000002;
 					text="Insurgency_Base";
-					init="this setVariable [""minSpawnPositionsForBuildings"", 2];  this setVariable [""enemiesSide"", 3];  this setVariable [""maxUnitsPerPlayer"", 10];  this setVariable [""maxUnitsPerSquare"", 2];  this setVariable [""spawnrange"", 300];  this setVariable [""deathTimeout"", 150];  this setVariable [""minDistanceToPlayableUnitsForSpawn"", 20];  this setVariable [""maxDistanceToUnitGrid"", 200];  this setVariable [""maxDistanceToOwner"", 400];  this setVariable [""enemySideSpawning"", 1];  this setVariable [""hcUnitName"", """"];";
+					init="this setVariable [""minSpawnPositionsForBuildings"", 2];  this setVariable [""enemiesSide"", 3];  this setVariable [""maxUnitsPerPlayer"", 10];  this setVariable [""maxUnitsPerSquare"", 2];  this setVariable [""spawnrange"", 300];  this setVariable [""deathTimeout"", paramsArray select 4];  this setVariable [""minDistanceToPlayableUnitsForSpawn"", 20];  this setVariable [""maxDistanceToUnitGrid"", 200];  this setVariable [""maxDistanceToOwner"", 400];  this setVariable [""enemySideSpawning"", 1];  this setVariable [""hcUnitName"", """"];";
 					syncId=6;
 					synchronizations[]={1,3,4,2,5,7};
 				};
@@ -1019,7 +1019,7 @@ class Mission
 					leader=1;
 					skill=0.60000002;
 					text="AmmoCaches";
-					init="this setVariable [""overrideMapSize"", -1];  this setVariable [""Count"", ""5""];  this setVariable [""DropIntelType"", 0];  this setVariable [""DropIntelSide"", 3];  this setVariable [""IntelRate"", ""0.4""];  this setVariable [""EndMission"", ""END1""];  [this] call X39_XLib_Modules_fnc_X39_XLib_AmmoCaches;";
+					init="this setVariable [""overrideMapSize"", -1];  this setVariable [""Count"", paramsArray select 1];  this setVariable [""DropIntelType"", paramsArray select 2];  this setVariable [""DropIntelSide"", 3];  this setVariable [""IntelRate"", paramsArray select 3];  this setVariable [""EndMission"", ""END1""];  [this] call X39_XLib_Modules_fnc_X39_XLib_AmmoCaches;";
 				};
 			};
 		};
