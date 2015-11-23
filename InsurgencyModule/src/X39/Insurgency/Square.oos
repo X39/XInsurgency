@@ -1,0 +1,17 @@
+using <::std::Marker>
+namespace X39
+{
+	namespace Insurgency
+	{
+		class Square
+		{
+			public ::std::Marker marker;
+			
+			public Square(scalar X, scalar Y)
+			{
+				this.marker = new ::std::Marker(SQF format("X39INS_%1%2", X, Y) as string);
+				//ToDo: Finish creating the marker
+			}
+		}
+	}
+}

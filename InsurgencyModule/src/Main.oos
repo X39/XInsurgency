@@ -1,0 +1,30 @@
+using <::std::Men>
+using <::X39::Insurgency::Square>
+
+namespace X39
+{
+	namespace Insurgency
+	{
+		static async void PlayerLoop()
+		{
+			auto player = SQF player as ::std::Men;
+			while(true)
+			{
+				
+			}
+		}
+	}
+}
+
+namespace Mission
+{
+	static void postInit()
+	{
+		if(SQF isServer as bool)
+		{
+			
+		}
+		if(!SQF isDedicated as bool)
+			::X39::Insurgency::PlayerLoop();
+	}
+}
