@@ -1,0 +1,2 @@
+"Mission_var_MissionPoller" addPublicVariableEventHandler Mission_fnc_serverReceive;
+"Mission_var_MissionPoller" addPublicVariableEventHandler Mission_fnc_clientReceive;

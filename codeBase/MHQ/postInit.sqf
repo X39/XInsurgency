@@ -18,8 +18,8 @@ X39_MHQ_var_EnemySides = [opfor, resistance];
 					if(!_isBlocked) then
 					{
 						_veh setVariable["X39_MHQ_var_Deployment_isBlocked", true];
-						
-						
+
+
 					};
 				}
 				else
@@ -27,13 +27,13 @@ X39_MHQ_var_EnemySides = [opfor, resistance];
 					if(_isBlocked) then
 					{
 						_veh setVariable["X39_MHQ_var_Deployment_isBlocked", false];
-						
-						
+
+
 					};
 				}
 
 			};
-		}count X39_MHQ_var_MHQVehicles;
+		} count X39_MHQ_var_MHQVehicles;
 		sleep 1;
 	};
 };

@@ -1,4 +1,4 @@
-systemChat "XInsurgency - Version 1.2";
+systemChat "XInsurgency - Version 1.3";
 hint "Welcome to X39s Insurgency! Mission Start could have large delays depending on map size.";
 [Insurgency_Base] call X39_GM_Insurgency_fnc_module_X39_GM_Insurgency;
 
@@ -25,8 +25,6 @@ X39_XLib_ShowFactionNamesAndRank_EH_Draw3D = addMissionEventHandler ["Draw3D", {
 }];
 
 systemChat "It could happen that AMMO-CACHES spawn inside of the base";
-
-Mission_var_VehicleSpawnerEnabled = (paramsArray select 0) > 0;
 
 //Auto-Load saved inventory
 if(!isDedicated) then {
