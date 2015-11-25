@@ -6,6 +6,7 @@
     <mainfile>.\src\main.oos</mainfile>
     <outputfolder>.\output\</outputfolder>
     <buildfolder>.\build\</buildfolder>
+    <srcfolder>.\src\</srcfolder>
   </project>
   <compiler version="0.7.0-ALPHA" />
 </root>
