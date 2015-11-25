@@ -1,0 +1,4 @@
+namespace GVARS
+{
+	static ::std::Context missionContext;
+}

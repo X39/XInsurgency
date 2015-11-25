@@ -1,4 +1,4 @@
-using <::std::Marker>
+using ::std::Marker
 namespace X39
 {
 	namespace Insurgency
@@ -7,10 +7,13 @@ namespace X39
 		{
 			public ::std::Marker marker;
 			
-			public Square(scalar X, scalar Y)
+			public Square(scalar x, scalar y)
 			{
-				this.marker = new ::std::Marker(SQF format("X39INS_%1%2", X, Y) as string);
-				//ToDo: Finish creating the marker
+				this.marker = new ::std::Marker(SQF format("X39INS_%1%2", x, y) as string);
+				this.marker.setBrush(::std::Marker::Brush::Solid);
+				this.marker.setSize(100, 100);
+				this.marker.setPosition(x - SQF (x)mod(50) + 50, y - SQF (y)mod(50) + 50);
+				this.marker.setAlpha(0.75);
 			}
 		}
 	}

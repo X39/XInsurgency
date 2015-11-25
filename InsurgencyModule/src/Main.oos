@@ -1,5 +1,10 @@
-using <::std::Men>
-using <::X39::Insurgency::Square>
+#define SEARCHRADIUS 100
+
+using ::std::Context
+using ::std::Man
+using ::std::base::VehicleBase
+using ::GVARS
+using ::X39::Insurgency::Square
 
 namespace X39
 {
@@ -7,7 +12,10 @@ namespace X39
 	{
 		static async void PlayerLoop()
 		{
-			auto player = SQF player as ::std::Men;
+			auto player = SQF player as ::std::Man;
+			
+			while(!::GVARS::missionContext.getBool("MissionReady", false))
+				SQF sleep (1);
 			while(true)
 			{
 				
@@ -18,10 +26,50 @@ namespace X39
 
 namespace Mission
 {
+	/**
+	* Function which will search the whole map for objects of the type "house".
+	* 
+	* @Return Array containing all houses on a map
+	*/
+	static array<::std::base::VehicleBase> getAllBuildingsOnMap()
+	{
+		//Reserve our returning array
+		auto arr = new array<::std::base::VehicleBase>();
+		//Get worldsize
+		scalar mapSize = SQF worldSize;
+		
+		//Loop through whole world
+		scalar i = 0;
+		scalar j = 0;
+		for(; i < mapSize; i += SEARCHRADIUS)
+		{
+			for(; j < mapSize; j += SEARCHRADIUS)
+			{
+				//Prepare positional array for SQF command NearestObjects
+				auto tmpPos = new array<scalar>();
+				tmpPos.pushBack(i);
+				tmpPos.pushBack(j);
+				tmpPos.pushBack(0);
+				//Prepare filter array for SQF command NearestObjects
+				auto tmpToFind = new array<string>();
+				tmpToFind.pushBack("house");
+				//Execute the actual SQF command NearestObjects to get all houses around search position
+				auto tmpArray = SQF nearestObjects(tmpPos, tmpToFind, SEARCHRADIUS) as array<::std::base::VehicleBase>;
+				
+				//Finally join our temporary array with our returning array
+				arr.join(tmpArray);
+			}
+		}
+		return arr;
+	}
 	static void postInit()
 	{
 		if(SQF isServer as bool)
 		{
+			::GVARS::missionContext = SQF createLocation ("NameVillage", {0,0,0}, 0, 0) as ::std::Context;
+			SQF publicVariable ("GVAR_Mission_missionContext");
+			
+			auto houses = getAllBuildingsOnMap();
 			
 		}
 		if(!SQF isDedicated as bool)
