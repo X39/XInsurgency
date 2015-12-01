@@ -1,11 +1,30 @@
+#include "defines.def"
+
 using ::std::Marker
+using ::std::base::VehicleBase
+using ::std::Man
+
 namespace X39
 {
 	namespace Insurgency
 	{
+		static fnc array<vec3> receiveAllBuildingPositions(::std::base::VehicleBase veh)
+			private ["_arr", "_i", "_ref"];
+			_arr = [];
+			_ref = [0, 0, 0];
+			_i = 0;
+			while {!((veh buildingPos _i) isEqualTo _ref)} do
+			{
+				_arr pushBack (veh buildingPos _i);
+			};
+			_arr
+		endFnc
+		
 		class Square
 		{
 			public ::std::Marker marker;
+			public array<::std::base::VehicleBase> houses;
+			public ::std::Vehicle veh;
 			
 			public Square(scalar x, scalar y)
 			{
@@ -14,6 +33,32 @@ namespace X39
 				this.marker.setSize(100, 100);
 				this.marker.setPosition(x - SQF (x)mod(50) + 50, y - SQF (y)mod(50) + 50);
 				this.marker.setAlpha(0.75);
+				this.houses = new array<::std::base::VehicleBase>();
+				this.veh = new ::std::Vehicle("Land_HelipadEmpty_F", x, y, 0);
+				this.veh.getContext().setBool("IsInsurgencyObject", true, true);
+			}
+			public void prepare()
+			{
+				foreach(auto it in this.houses)
+				{
+					auto var = receiveAllBuildingPositions(it);
+					this.houses.join(var);
+					it.getContext().setNativeObject("positions", <nobject>var, true);
+					it.getContext().setObject("square", <object>this, true);
+				}
+				auto context = this.veh.getContext();
+				context.setScalar("unitCount", 0, true);
+				context.setScalar("houseCount", this.houses.length(), true);
+				auto tmp = new array<::std::Man>;
+				context.setNativeObject("localUnits", <nobject>tmp, true);
+			}
+			public void createUnit()
+			{
+				
+			}
+			public void update()
+			{
+				
 			}
 		}
 	}
