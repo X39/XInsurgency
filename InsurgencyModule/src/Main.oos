@@ -1,10 +1,14 @@
 #include "defines.def"
 
 using ::std::Context
-using ::std::Man
 using ::std::base::VehicleBase
+using ::std::Man
+using ::std::Vehicle
+using ::std::Group
+
 using ::GVARS
 using ::X39::Insurgency::Square
+
 
 namespace X39
 {
@@ -18,20 +22,20 @@ namespace X39
 				sleep(1);
 			auto noFilter = new array<string>();
 			noFilter.pushBack("Land_HelipadEmpty_F");
+			array<::X39::Insurgency::Square> currentSquaresInPool = new array<::X39::Insurgency::Square>();
 			while (true)
 			{
 				auto tmp = SQF nearestObjects(player, noFilter, SEARCHRADIUS * 2) as array<::std::base::VehicleBase>;
+				array<::X39::Insurgency::Square> handledSquares = new array<::X39::Insurgency::Square>();
 				foreach (auto it in tmp)
 				{
-					auto square = <::X39::Insurgency::Square>::it.getContext().getNativeObject("square");
-					auto context = square.veh.getContext();
-					if (context.getScalar("houseCount", 0) * HOUSEUNITQUOTA > context.getScalar("unitCount", 0))
+					if(::X39::Insurgency::Square::isSquare(it))
 					{
-						square.createUnit();
-					}
-					else
-					{
+						auto square = <::X39::Insurgency::Square>it.getContext().getObject("square");
 						square.update();
+						handledSquares.pushBack(square);
+						if(currentSquaresInPool.find(square) < 0)
+							currentSquaresInPool.pushBack(square);
 					}
 				}
 			}
@@ -55,34 +59,53 @@ namespace Mission
 		
 		//Loop through whole world
 		scalar i = 50;
-		scalar j = 50;
 		for (; i < mapSize; i += 100)
 		{
+			scalar j = 50;
 			for (; j < mapSize; j += 100)
 			{
-				::X39::Insurgency::Square square = new ::X39::Insurgency::Square(i, j);
-				arr.pushBack(square);
 				//Prepare filter array for SQF command NearestObjects
 				auto tmpToFind = new array<string>();
 				tmpToFind.pushBack("house");
+				
 				//Execute the actual SQF command NearestObjects to get all houses around search position
 				auto tmpArray = SQF nearestObjects(new vec3(i, j, 0), tmpToFind, SEARCHRADIUS) as array<::std::base::VehicleBase>;
 				
-				//Finally join our temporary array with our returning array
-				square.houses.join(tmpArray);
-				square.prepare();
+				if(tmpArray.length() > 0)
+				{
+					::X39::Insurgency::Square square = new ::X39::Insurgency::Square(i, j);
+					
+					//Finally join our temporary array with our returning array
+					square.houses.join(tmpArray);
+					if(square.prepare())
+					{
+						arr.pushBack(square);
+					}
+				}
 			}
 		}
 		return arr;
 	}
+	static fnc ::std::Context createContext()
+		_grp = createGroup sideLogic;
+		_logic = (_grp) createUnit ["Logic", [ 0 , 0 , 0 ], [ ], 0, "NONE"];
+		[_logic] join grpNull;
+		deleteGroup _grp;
+		_logic
+	endFnc
 	static void postInit()
 	{
+		::GVARS::unitClasses = new array<string>();
+		::GVARS::unitClasses.pushBack("B_Soldier_F");
 		if (isServer())
 		{
-			::GVARS::missionContext = SQF createLocation ("NameVillage", {0,0,0}, 0, 0) as ::std::Context;
+			::GVARS::missionContext = createContext();
+			::GVARS::missionContext.setBool("MissionReady", false);
+			::GVARS::missionGroup = ::std::createGroupEast();
 			SQF publicVariable ("GVAR_Mission_missionContext");
 			
 			allSquares = getAllBuildingsOnMap();
+			::GVARS::missionContext.setBool("MissionReady", true);
 		}
 		if (!isDedicated())
 			::X39::Insurgency::PlayerLoop();

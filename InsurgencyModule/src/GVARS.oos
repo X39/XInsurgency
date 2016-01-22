@@ -1,4 +1,10 @@
+using ::std::Context
+using ::std::Group
+
+
 namespace GVARS
 {
 	static ::std::Context missionContext;
+	static ::std::Group missionGroup;
+	static array<string> unitClasses;
 }
