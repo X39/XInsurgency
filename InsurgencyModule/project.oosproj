@@ -9,7 +9,5 @@
     <srcfolder>.\src\</srcfolder>
   </project>
   <compiler version="0.7.2-ALPHA" />
-  <ressources>
-    <res in=".\project.oosproj" out=".\asd" />
-  </ressources>
+  <ressources />
 </root>
