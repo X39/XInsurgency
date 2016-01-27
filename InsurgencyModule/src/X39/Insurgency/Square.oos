@@ -30,6 +30,7 @@ namespace X39
 			public array<::std::base::VehicleBase> houses;
 			public scalar housesCount;
 			public ::std::Vehicle veh;
+			public bool isCleared;
 			
 			public Square(scalar x, scalar y)
 			{
@@ -38,24 +39,31 @@ namespace X39
 				this.marker.setBrush(::std::Marker::Brush::Solid);
 				this.marker.setType("Empty");
 				this.marker.setSize(50, 50);
-				this.marker.setPosition(x - mod(x, 100) + 50, y - mod(y, 100) + 50);
+				this.marker.setPosition(50 + (x - mod(x, 100)), 50 + (y - mod(y, 100)));
 				this.marker.setAlpha(0.75);
 				this.houses = new array<::std::base::VehicleBase>();
 				this.veh = new ::std::Vehicle("Land_HelipadEmpty_F", x, y, 0);
 				this.veh.getContext().setBool("IsInsurgencyObject", true, true);
+				this.setCleared(false);
 			}
 			public bool prepare()
 			{
 				bool hasPos = false;
+				array<::std::base::VehicleBase> housesWithPos = new array<::std::base::VehicleBase>();
 				foreach(auto it in this.houses)
 				{
 					auto var = receiveAllBuildingPositions(it);
 					if(var.length() > 0)
 					{
 						hasPos = true;
+						housesWithPos.pushBack(it);
 					}
 					it.getContext().setNativeObject("positions", <nobject>var, true);
 				}
+				////BUG: ___obj___ set [5, (___obj___) arrayIntersect (_housesWithPos)];
+				//this.houses = SQF (this.houses) arrayIntersect (housesWithPos) as array<::std::base::VehicleBase>;
+				auto tmpfix = SQF (this.houses) arrayIntersect (housesWithPos) as array<::std::base::VehicleBase>;
+				this.houses = tmpfix;
 				if(!hasPos)
 				{
 					this.veh.delete();
@@ -72,7 +80,7 @@ namespace X39
 				{
 					it2.getContext().setObject("square", <object>this, true);
 				}
-				context.setObject("square", <object>this, true);
+				this.publish();
 				return true;
 			}
 			
@@ -137,10 +145,12 @@ namespace X39
 			
 			public void createUnit()
 			{
-				::std::base::VehicleBase house = this.houses[random(this.houses.length())];
+				::std::base::VehicleBase house = this.houses[floor(random(this.houses.length()))];
 				auto pos = < array<vec3> >house.getContext().getNativeObject("positions");
 				auto unitClassName = ::GVARS::unitClasses[floor(random(::GVARS::unitClasses.length() - 1))];
-				::std::Man unit = new ::std::Man(::GVARS::missionGroup, unitClassName, pos[random(pos.length())]);
+				::std::Man unit = new ::std::Man(::GVARS::missionGroup, unitClassName, pos[floor(random(pos.length()))]);
+				unit.getContext().setString("owner", SQF getPlayerUID (SQF player) as string, true);
+				SQF (unit) disableAI ("TARGET");
 				transferUnitToServer(::GVARS::missionGroup);
 				SQF (unit) addEventHandler ("Killed", "(_this select 0) setVariable ['KillTime', time, true];");
 				SQF (unit) setVariable ("KillTime", -1, true);
@@ -150,33 +160,83 @@ namespace X39
 			}
 			public void update()
 			{
-				if(this.getUnitCount() < (this.housesCount * HOUSEUNITQUOTA))
+				if(this.isCleared)
+					return;
+				if (SQF (::std::Man::getPlayer()) distance (this.veh) as scalar > DESPAWNDISTANCE)
 				{
-					this.createUnit();
-				}
-				auto arr = this.getLocalUnits();
-				foreach (auto it in arr)
-				{
-					if(it.isAlive())
+					auto localUnits = this.getLocalUnits();
+					foreach (auto v in localUnits)
 					{
-						scalar t = SQF (it) getVariable ("KillTime") as scalar;
-						if (RESPAWNTIMEOUT < (time() - t))
+						v.delete();
+						this.addUnitCount(-1);
+					}
+					this.setLocalUnits(new array<::std::Man>());
+				}
+				else
+				{
+					auto curUnitCount = this.getUnitCount();
+					scalar quota = this.housesCount * HOUSEUNITQUOTA;
+					if(quota > MAXUNITSPERSQUARE)
+					{
+						quota = MAXUNITSPERSQUARE;
+					}
+					if (curUnitCount < quota)
+					{
+						this.createUnit();
+					}
+					auto arr = this.getLocalUnits();
+					bool anyAlive = false;
+					foreach (auto it in arr)
+					{
+						if (!it.isAlive())
 						{
-							this.addUnitCount(-1);
-							this.removeFromLocalUnits(it);
-							SQF deleteVehicle (it);
-							if(this.isValid())
+							scalar t = SQF (it) getVariable ("KillTime", time()) as scalar;
+							if (RESPAWNTIMEOUT < (time() - t))
 							{
-								this.createUnit();
+								this.addUnitCount(-1);
+								this.removeFromLocalUnits(it);
+								it.delete();
+								if(this.isValid())
+								{
+									this.createUnit();
+								}
 							}
 						}
+						else
+						{
+							anyAlive = true;
+						}
+					}
+					if(!anyAlive && arr.length() > 0)
+					{
+						this.setCleared(true);
 					}
 				}
 			}
 			
+			public void setCleared(bool flag)
+			{
+				if(flag)
+				{
+					this.isCleared = true;
+					this.marker.setColor(::std::Marker::Color::ColorGreen);
+				}
+				else
+				{
+					this.isCleared = false;
+					this.marker.setColor(::std::Marker::Color::ColorRed);
+				}
+			}
+			
+			public void publish()
+			{
+				auto context = this.veh.getContext();
+				context.setObject("square", <object>this, true);
+			}
+			
 			static bool isSquare(::std::base::VehicleBase vehicle)
 			{
-				return vehicle.getContext().getBool("IsInsurgencyObject", false);//ERROR - ([] call {private "___tmp___"; ___tmp___ = (7); ___tmp___ = ((___tmp___ select 7)); ___tmp___ = (___tmp___ getVariable [ "IsInsurgencyObject" , false ]); ___tmp___}) breakOut "_FNCSCOPE_";
+				return vehicle.getContext().getBool("IsInsurgencyObject", false);
 			}
 		}
 	}
