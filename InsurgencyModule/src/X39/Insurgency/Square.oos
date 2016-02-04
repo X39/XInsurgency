@@ -130,39 +130,26 @@ namespace X39
 				arr.deleteAt(index);
 				this.setLocalUnits(arr);
 			}
-			
-			static void transferUnitToServer(::std::Group group)
-			{
-				//if(isServer())
-				//{
-				//	SQF (group) setGroupOwner (SQF owner (::GVARS::missionContext));
-				//}
-				//else
-				//{
-				//	SQF (group) remoteExec ("X39_Insurgency_Square_fnc_transferUnitToServer", ::GVARS::missionContext, false);
-				//}
-			}
-			
+						
 			public void createUnit()
 			{
 				::std::base::VehicleBase house = this.houses[floor(random(this.houses.length()))];
 				auto pos = < array<vec3> >house.getContext().getNativeObject("positions");
 				auto unitClassName = ::GVARS::unitClasses[floor(random(::GVARS::unitClasses.length() - 1))];
 				::std::Man unit = new ::std::Man(::GVARS::missionGroup, unitClassName, pos[floor(random(pos.length()))]);
+				SQF doStop (unit);
 				unit.getContext().setString("owner", SQF getPlayerUID (SQF player) as string, true);
-				SQF (unit) disableAI ("TARGET");
-				transferUnitToServer(::GVARS::missionGroup);
 				SQF (unit) addEventHandler ("Killed", "(_this select 0) setVariable ['KillTime', time, true];");
 				SQF (unit) setVariable ("KillTime", -1, true);
 				
 				this.addUnitCount(1);
 				this.addToLocalUnits(unit);
 			}
-			public void update()
+			public bool update()
 			{
-				if(this.isCleared)
-					return;
-				if (SQF (::std::Man::getPlayer()) distance (this.veh) as scalar > DESPAWNDISTANCE)
+				if (this.isCleared)
+					return true;
+				if (SQF (::std::Man::getPlayer()) distance (this.veh) as scalar > ::GVARS::DespawnDistance)
 				{
 					auto localUnits = this.getLocalUnits();
 					foreach (auto v in localUnits)
@@ -171,14 +158,15 @@ namespace X39
 						this.addUnitCount(-1);
 					}
 					this.setLocalUnits(new array<::std::Man>());
+					return true;
 				}
 				else
 				{
 					auto curUnitCount = this.getUnitCount();
-					scalar quota = this.housesCount * HOUSEUNITQUOTA;
-					if(quota > MAXUNITSPERSQUARE)
+					scalar quota = this.housesCount * ::GVARS::HouseUnitQuota;
+					if (quota > ::GVARS::MaxUnitsPerSquare)
 					{
-						quota = MAXUNITSPERSQUARE;
+						quota = ::GVARS::MaxUnitsPerSquare;
 					}
 					if (curUnitCount < quota)
 					{
@@ -191,7 +179,7 @@ namespace X39
 						if (!it.isAlive())
 						{
 							scalar t = SQF (it) getVariable ("KillTime", time()) as scalar;
-							if (RESPAWNTIMEOUT < (time() - t))
+							if (::GVARS::RespawnTimeout < (time() - t))
 							{
 								this.addUnitCount(-1);
 								this.removeFromLocalUnits(it);
@@ -207,16 +195,18 @@ namespace X39
 							anyAlive = true;
 						}
 					}
-					if(!anyAlive && arr.length() > 0)
+					if (!anyAlive && arr.length() > 0)
 					{
 						this.setCleared(true);
+						return true;
 					}
+					return false;
 				}
 			}
 			
 			public void setCleared(bool flag)
 			{
-				if(flag)
+				if (flag)
 				{
 					this.isCleared = true;
 					this.marker.setColor(::std::Marker::Color::ColorGreen);

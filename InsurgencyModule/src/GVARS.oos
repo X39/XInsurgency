@@ -1,5 +1,6 @@
 using ::std::Context
 using ::std::Group
+using ::X39::Insurgency::IgnoreArea;
 
 
 namespace GVARS
@@ -7,4 +8,12 @@ namespace GVARS
 	static ::std::Context missionContext;
 	static ::std::Group missionGroup;
 	static array<string> unitClasses;
+	
+	static scalar HouseUnitQuota;
+	static scalar MaxUnitsPerSquare;
+	static scalar RespawnTimeout;
+	static scalar SpawnDistance;
+	static scalar DespawnDistance;
+	static array<::X39::Insurgency::IgnoreArea> IgnoreAreas;
+	
 }

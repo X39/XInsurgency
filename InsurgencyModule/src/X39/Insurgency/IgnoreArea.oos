@@ -1,0 +1,31 @@
+#include "defines.def"
+
+using ::std::Marker
+using ::std::base::VehicleBase
+using ::std::Man
+using ::std::Group
+
+using ::GVARS
+
+namespace X39
+{
+	namespace Insurgency
+	{
+		class IgnoreArea
+		{
+			public vec3 topLeft;
+			public vec3 botRight;
+			public IgnoreArea(vec3 topLeftVec, vec3 bottomRightVec)
+			{
+				this.topLeft = topLeftVec;
+				this.botRight = bottomRightVec;
+			}
+			public bool contains(vec3 pos)
+			{
+				return (pos.getX() > this.topLeft.getX() && pos.getX() < this.botRight.getX() &&
+						pos.getY() > this.topLeft.getY() && pos.getY() < this.botRight.getY() &&
+						pos.getZ() > this.topLeft.getZ() && pos.getZ() < this.botRight.getZ());
+			}
+		}
+	}
+}

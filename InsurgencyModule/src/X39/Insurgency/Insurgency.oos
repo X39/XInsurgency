@@ -1,0 +1,92 @@
+#include "defines.def"
+
+using ::std::Context
+using ::std::base::VehicleBase
+using ::std::Man
+using ::std::Vehicle
+using ::std::Group
+
+using ::GVARS
+using ::X39::Insurgency::Square
+
+
+namespace X39
+{
+	namespace Insurgency
+	{
+		static async void PlayerLoop()
+		{
+			
+			while (!::GVARS::missionContext.getBool("MissionReady", false))
+				sleep(1);
+			auto noFilter = new array<string>();
+			noFilter.pushBack("Land_HelipadEmpty_F");
+			array<::X39::Insurgency::Square> currentSquaresInPool = new array<::X39::Insurgency::Square>();
+			while (true)
+			{
+				auto player = ::std::getPlayer();
+				if (SQF alive (player) as bool)
+				{
+					auto tmp = SQF nearestObjects(player, noFilter, ::GVARS::DespawnDistance) as array<::std::base::VehicleBase>;
+					array<::X39::Insurgency::Square> handledSquares = new array<::X39::Insurgency::Square>();
+					foreach (auto it in tmp)
+					{
+						if (::X39::Insurgency::Square::isSquare(it))
+						{
+							auto square = <::X39::Insurgency::Square>it.getContext().getObject("square");
+							square.update();
+							handledSquares.pushBack(square);
+							if (!currentSquaresInPool.contains(square))
+								currentSquaresInPool.pushBack(square);
+						}
+					}
+					auto toRemove = new array<scalar>();
+					scalar i = 0;
+					for (; i < currentSquaresInPool.length(); i++)
+					{
+						auto sq = currentSquaresInPool[i];
+						if (!handledSquares.contains(sq))
+						{
+							if (sq.update())
+							{
+								toRemove.pushBack(i);
+							}
+						}
+					}
+					SQF (toRemove) sort (false);
+					foreach (auto index in toRemove)
+					{
+						currentSquaresInPool.deleteAt(index);
+					}
+				}
+				sleep(0.1);
+			}
+		}
+		static async void ServerLoop()
+		{
+			while (true)
+			{
+				SQF (::GVARS::missionGroup) setCombatMode ("RED");
+				SQF (::GVARS::missionGroup) setBehaviour ("COMBAT");
+				array<string> playerUIDs = new array<string>();
+				playerUIDs.pushBack("NaN");
+				auto arr = SQF allPlayers as array<::std::Man>;
+				foreach (auto player in arr)
+				{
+					playerUIDs.pushBack(SQF getPlayerUID (player) as string);
+				}
+				arr = SQF allUnits as array<::std::Man>;
+				foreach (auto it in arr)
+				{
+					string uid = it.getContext().getString("owner", "NaN");
+					if (!playerUIDs.contains(uid))
+					{
+						it.delete();
+					}
+				}
+				
+				sleep(5);
+			}
+		}
+	}
+}

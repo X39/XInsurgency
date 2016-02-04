@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <project>
-    <title>InsurgencyModule</title>
+    <title>XInsurgency</title>
     <author>X39</author>
-    <mainfile>.\src\main.oos</mainfile>
+    <mainfile>.\src\Mission\main.oos</mainfile>
     <outputfolder>.\output\</outputfolder>
     <buildfolder>.\build\</buildfolder>
     <srcfolder>.\src\</srcfolder>

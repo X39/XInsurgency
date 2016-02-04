@@ -1,0 +1,159 @@
+#include "defines.def"
+
+using ::std::Context
+using ::std::base::VehicleBase
+using ::std::Man
+using ::std::Vehicle
+using ::std::Group
+using ::std::Side;
+
+using ::GVARS
+using ::X39::Insurgency::Square
+using ::X39::Insurgency::Insurgency
+
+#ifdef DEBUG
+using ::std::Marker;
+#endif
+
+namespace Mission
+{
+	static array<::X39::Insurgency::Square> allSquares;
+	/**
+	* Function which will search the whole map for objects of the type "house".
+	* 
+	* @Return Array containing all houses on a map
+	*/
+	static array<::X39::Insurgency::Square> getAllBuildingsOnMap()
+	{
+		//Reserve our returning array
+		auto arr = new array<::X39::Insurgency::Square>();
+		//Get worldsize
+		scalar mapSize = SQF worldSize;
+		
+		//Loop through whole world
+		scalar i = 50;
+		for (; i < mapSize; i += 100)
+		{
+			scalar j = 50;
+			for (; j < mapSize; j += 100)
+			{
+				bool flag = false;
+				foreach (auto it in ::GVARS::IgnoreAreas)
+				{
+					if (it.contains(new vec3(i, j, 0)))
+					{
+						flag = true;
+						break;
+					}
+				}
+				if (!flag)
+				{
+					//Prepare filter array for SQF command NearestObjects
+					auto tmpToFind = new array<string>();
+					tmpToFind.pushBack("house");
+					
+					//Execute the actual SQF command NearestObjects to get all houses around search position
+					auto tmpArray = SQF nearestObjects(new vec3(i, j, 0), tmpToFind, SEARCHRADIUS) as array<::std::base::VehicleBase>;
+					
+					if (tmpArray.length() > 0)
+					{
+						::X39::Insurgency::Square square = new ::X39::Insurgency::Square(i, j);
+						
+						//Finally join our temporary array with our returning array
+						square.houses.join(tmpArray);
+						if (square.prepare())
+						{
+							arr.pushBack(square);
+						}
+					}
+				}
+			}
+		}
+		return arr;
+	}
+	static void preInit()
+	{
+		::GVARS::HouseUnitQuota = 2;
+		::GVARS::MaxUnitsPerSquare = 6;
+		::GVARS::RespawnTimeout = 180;
+		::GVARS::SpawnDistance = 100;
+		::GVARS::DespawnDistance = 200;
+		::GVARS::IgnoreAreas = new array<::X39::Insurgency::IgnoreArea>();
+	}
+#ifdef DEBUG
+	static fnc ::std::Context createContext()
+		_grp = createGroup sideLogic;
+		_logic = (_grp) createUnit ["Logic", [ 0 , 0 , 0 ], [ ], 0, "NONE"];
+		[_logic] join grpNull;
+		deleteGroup _grp;
+		_logic
+	endFnc
+	static void postInit()
+	{
+		auto context = createContext();
+		
+		auto side = new ::std::Side();
+		auto unitClasses = new array<string>();
+		unitClasses.pushBack("I_Soldier_F");
+		
+		auto markerArray = new array<::std::Marker>();
+		auto ignoreMarker = new ::std::Marker("ignoreArea1");
+		ignoreMarker.setShape(::std::Marker::Shape::Rectangle);
+		ignoreMarker.setBrush(::std::Marker::Brush::Solid);
+		ignoreMarker.setType("Empty");
+		ignoreMarker.setPosition(2187, 5667);
+		ignoreMarker.setSize(200, 200);
+		ignoreMarker.setAlpha(0.75);
+		markerArray.pushBack(ignoreMarker);
+		
+		ignoreMarker = new ::std::Marker("ignoreArea2");
+		ignoreMarker.setShape(::std::Marker::Shape::Rectangle);
+		ignoreMarker.setBrush(::std::Marker::Brush::Solid);
+		ignoreMarker.setType("Empty");
+		ignoreMarker.setPosition(3338, 2955);
+		ignoreMarker.setSize(200, 200);
+		ignoreMarker.setAlpha(0.75);
+		markerArray.pushBack(ignoreMarker);
+		
+		
+		initInsurgencyMission(context, side.asResistance(), unitClasses, markerArray);
+	}
+#endif
+	static void initInsurgencyMission(::std::Context logic, ::std::Side side, array<string> unitClasses, array<::std::Marker> markerArray)
+	{
+		::GVARS::unitClasses = unitClasses;
+		::GVARS::missionContext = logic;
+		if (isServer())
+		{
+			SQF createCenter (side);
+			::GVARS::missionContext.setBool("MissionReady", false, true);
+			::GVARS::missionGroup = new ::std::Group(side);
+			SQF publicVariable ("GVAR_GVARS_missionGroup");
+			
+			foreach(auto it in markerArray)
+			{
+				auto size = it.getSize();
+				auto pos = it.getPosition();
+				
+				scalar x = size[0];
+				scalar y = size[1];
+				scalar w = pos[0];
+				scalar h = pos[1];
+				
+				auto topLeft = new vec3(x - w / 2, y - h / 2, 0);
+				auto botRight = new vec3(x + w / 2, y + h / 2, 0);
+				auto ia = new ::X39::Insurgency::IgnoreArea(topLeft, botRight);
+				::GVARS::IgnoreAreas.pushBack(ia);
+				it.delete();
+			}
+			
+			allSquares = getAllBuildingsOnMap();
+			::GVARS::missionContext.setBool("MissionReady", true, true);
+			
+			//Run server loop
+			::X39::Insurgency::ServerLoop();
+		}
+		if (!isDedicated())
+			::X39::Insurgency::PlayerLoop();
+	}
+}

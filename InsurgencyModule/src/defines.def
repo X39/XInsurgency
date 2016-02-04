@@ -1,12 +1,4 @@
 //General defines
-//#define SEARCHRADIUS 70.7106781185
-#define SEARCHRADIUS 50
+#define SEARCHRADIUS 70.7106781185
 
-//Unit quota settings
-#define HOUSEUNITQUOTA 2
-#define MAXUNITSPERSQUARE 6
-
-//Unit spawn settings
-#define RESPAWNTIMEOUT 180
-#define SPAWNDISTANCE 100
-#define DESPAWNDISTANCE 200
+#define DEBUG
