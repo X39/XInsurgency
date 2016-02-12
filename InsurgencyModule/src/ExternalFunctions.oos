@@ -1,0 +1,6 @@
+namespace BIS
+{
+	static external void endMission(string endType);
+	static external string textureMarker(string markerName);
+	static external string showNotification(string templateName, array<string> args);
+}

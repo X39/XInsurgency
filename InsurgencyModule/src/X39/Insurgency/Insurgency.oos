@@ -58,8 +58,69 @@ namespace X39
 					{
 						currentSquaresInPool.deleteAt(index);
 					}
+					
+					
+					//Intel pickup loop (& marker spawner)
+					auto tmpFilter = new array<string>();
+					tmpFilter.pushBack("Land_File1_F");
+					auto arr = SQF nearestObjects (player, tmpFilter, 2) as array<::std::base::VehicleBase>;
+					
+					if (arr.length() > 0)
+					{
+						foreach (auto intel in arr)
+						{
+							if (intel.getContext().getBool("isIntel", false))
+							{
+								intel.delete();
+								auto lastDistance = SQF worldSize;
+								::X39::Insurgency::AmmoCache lastCache;
+								foreach (auto cache in ::GVARS::AmmoCaches)
+								{
+									if (SQF (cache.veh) distance (player) as scalar < lastDistance)
+									{
+										lastDistance = SQF (cache.veh) distance (player) as scalar;
+										lastCache = cache;
+									}
+								}
+								auto markers = lastCache.getMarkers();
+								scalar dstnc;
+								if (markers.length() > ::GVARS::AmmoCachesIntelDistances.length())
+								{
+									dstnc = ::GVARS::AmmoCachesIntelDistances[::GVARS::AmmoCachesIntelDistances.length() - 1];
+								}
+								else
+								{
+									dstnc = ::GVARS::AmmoCachesIntelDistances[markers.length()];
+								}
+								auto marker = new ::std::Marker(SQF format("X39OBJ_%1%2", lastCache.veh.getPosition(), markers.length()) as string);
+								marker.setShape(::std::Marker::Shape::Icon);
+								marker.setType("mil_unknown");
+								marker.setText(SQF str (dstnc));
+								marker.setSize(0.5, 0.5);
+								scalar xPos = random(dstnc / 2) + (dstnc / 2);
+								if (random(2) > 1)
+								{
+									xPos = xPos * -1;
+								}
+								scalar yPos = random(dstnc / 2) + (dstnc / 2);
+								if (random(2) > 1)
+								{
+									yPos = yPos * -1;
+								}
+								marker.setPosition(xPos, yPos);
+								marker.setColor(::std::Marker::Color::ColorRed);
+								marker.setAlpha(0.75);
+								markers.pushBack(marker);
+								lastCache.setMarkers(markers);
+								auto tmpArray = new array<string>();
+								tmpArray.pushBack("New intel was located!");
+								tmpArray.pushBack(::BIS::textureMarker("mil_warning"));
+								SQF ("IntelAdded", tmpArray) remoteExec (deref ::BIS::showNotification, true, false);
+							}
+						}
+					}
 				}
-				sleep(0.1);
+				sleep(0.5);
 			}
 		}
 		static async void ServerLoop()

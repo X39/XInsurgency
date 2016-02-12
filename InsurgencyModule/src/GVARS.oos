@@ -1,6 +1,7 @@
 using ::std::Context
 using ::std::Group
 using ::X39::Insurgency::IgnoreArea;
+using ::X39::Insurgency::AmmoCache;
 
 
 namespace GVARS
@@ -15,5 +16,8 @@ namespace GVARS
 	static scalar SpawnDistance;
 	static scalar DespawnDistance;
 	static array<::X39::Insurgency::IgnoreArea> IgnoreAreas;
+	static array<::X39::Insurgency::AmmoCache> AmmoCaches;
+	static array<scalar> AmmoCachesIntelDistances;
+	static scalar AmmoCachesInitialCount;
 	
 }

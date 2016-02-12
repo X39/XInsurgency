@@ -9,6 +9,7 @@ using ::std::Side;
 
 using ::GVARS
 using ::X39::Insurgency::Square
+using ::X39::Insurgency::AmmoCache
 using ::X39::Insurgency::Insurgency
 
 #ifdef DEBUG
@@ -80,6 +81,44 @@ namespace Mission
 		::GVARS::DespawnDistance = 200;
 		::GVARS::IgnoreAreas = new array<::X39::Insurgency::IgnoreArea>();
 	}
+	static void generateAmmmoCaches(scalar count, scalar range)
+	{
+		scalar mapSize = SQF worldSize;
+		scalar i = 0;
+		scalar curRange;
+		::GVARS::AmmoCaches = new array<::X39::Insurgency::AmmoCache>();
+		::GVARS::AmmoCachesInitialCount = count;
+		SQF publicVariable (deref ::GVARS::AmmoCaches);
+		SQF publicVariable (deref ::GVARS::AmmoCachesInitialCount);
+		for (; i < count; i++)
+		{
+			curRange = range;
+			auto tmpToFind = new array<string>();
+			tmpToFind.pushBack("house");
+			while (true)
+			{
+				auto tmpArray = SQF nearestObjects(new vec3(random(mapSize), random(mapSize), 0), tmpToFind, 100) as array<::std::base::VehicleBase>;
+				auto house = tmpArray[floor(random(tmpArray.length()))];
+				bool flag = false;
+				foreach (auto it in ::GVARS::AmmoCaches)
+				{
+					if (SQF (it.veh) distance (house) as scalar < curRange)
+					{
+						flag = true;
+						curRange--;
+					}
+				}
+				if (!flag)
+				{
+					auto positions = ::X39::Insurgency::receiveAllBuildingPositions(house);
+					auto position = positions[floor(random(positions.length()))];
+					auto cache = new ::X39::Insurgency::AmmoCache(position.getX(), position.getY(), position.getZ() + 0.001);
+					::GVARS::AmmoCaches.pushBack(cache);
+					break;
+				}
+			}
+		}
+	}
 #ifdef DEBUG
 	static fnc ::std::Context createContext()
 		_grp = createGroup sideLogic;
@@ -116,19 +155,29 @@ namespace Mission
 		markerArray.pushBack(ignoreMarker);
 		
 		
-		initInsurgencyMission(context, side.asResistance(), unitClasses, markerArray);
+		initInsurgencyMission(context, side.asResistance(), unitClasses, markerArray, 4, 1000);
 	}
 #endif
-	static void initInsurgencyMission(::std::Context logic, ::std::Side side, array<string> unitClasses, array<::std::Marker> markerArray)
+	static void initInsurgencyMission(::std::Context logic, ::std::Side side, array<string> unitClasses, array<::std::Marker> markerArray, scalar ammoCacheCount, scalar ammoCacheDistance)
 	{
 		::GVARS::unitClasses = unitClasses;
 		::GVARS::missionContext = logic;
+		::GVARS::AmmoCachesIntelDistances = new array<scalar>();
+		::GVARS::AmmoCachesIntelDistances.pushBack(900);
+		::GVARS::AmmoCachesIntelDistances.pushBack(750);
+		::GVARS::AmmoCachesIntelDistances.pushBack(600);
+		::GVARS::AmmoCachesIntelDistances.pushBack(450);
+		::GVARS::AmmoCachesIntelDistances.pushBack(300);
+		::GVARS::AmmoCachesIntelDistances.pushBack(200);
+		::GVARS::AmmoCachesIntelDistances.pushBack(150);
+		::GVARS::AmmoCachesIntelDistances.pushBack(100);
+		::GVARS::AmmoCachesIntelDistances.pushBack(50);
 		if (isServer())
 		{
 			SQF createCenter (side);
 			::GVARS::missionContext.setBool("MissionReady", false, true);
 			::GVARS::missionGroup = new ::std::Group(side);
-			SQF publicVariable ("GVAR_GVARS_missionGroup");
+			SQF publicVariable (deref ::GVARS::missionGroup);
 			
 			foreach(auto it in markerArray)
 			{
@@ -148,6 +197,7 @@ namespace Mission
 			}
 			
 			allSquares = getAllBuildingsOnMap();
+			generateAmmmoCaches(ammoCacheCount, ammoCacheDistance);
 			::GVARS::missionContext.setBool("MissionReady", true, true);
 			
 			//Run server loop

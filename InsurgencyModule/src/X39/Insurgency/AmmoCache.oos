@@ -1,0 +1,86 @@
+#include "defines.def"
+
+using ::std::Marker
+using ::std::base::VehicleBase
+using ::std::Man
+using ::std::Group
+
+using ::GVARS
+using ::ExternalFunctions
+
+namespace X39
+{
+	namespace Insurgency
+	{
+		class AmmoCache
+		{
+			public ::std::Vehicle veh;
+			public scalar index;
+			
+			public AmmoCache(scalar x, scalar y, scalar z)
+			{
+				this.veh = new ::std::Vehicle("O_supplyCrate_F", x, y, z + 0.001);
+				SQF (this.veh) addEventHandler ("HandleDamage", SQF (SQF missionNamespace) getVariable (deref EH_HandleDamage));
+				this.setMarkers(new array<::std::Marker>());
+			}
+			static void MP_BoxDestroyed()
+			{
+				SQF systemChat (SQF format("%1/%2 caches remaining", ::GVARS::AmmoCaches.length(), ::GVARS::AmmoCachesInitialCount));
+				if (::GVARS::AmmoCaches.length() == 0)
+				{
+					::BIS::endMission("END1");
+				}
+			}
+			static scalar EH_HandleDamage(::std::Vehicle obj, string sectionName, scalar dmgRcvt, ::std::Vehicle sourceUnit, string projectile)
+			{
+				auto allowedCharges = new array<string>();
+				allowedCharges.pushBack("SatchelCharge_Remote_Ammo");
+				allowedCharges.pushBack("SatchelCharge_Remote_Ammo_Scripted");
+				allowedCharges.pushBack("DemoCharge_Remote_Ammo_Scripted");
+				
+				auto explosives = new array<string>();
+				explosives.pushBack("Bo_GBU12_LGB_MI10");
+				explosives.pushBack("Sh_120_HE");
+				explosives.pushBack("HelicopterExploBig");
+				explosives.pushBack("Bo_GBU12_LGB");
+				explosives.pushBack("Bo_Mk82");
+				explosives.pushBack("HelicopterExploBig");
+				explosives.pushBack("Bo_Mk82");
+				explosives.pushBack("Bo_Mk82");
+				explosives.pushBack("Bo_GBU12_LGB_MI10");
+				explosives.pushBack("Sh_120_HE");
+				explosives.pushBack("HelicopterExploBig");
+				explosives.pushBack("Bo_GBU12_LGB");
+				
+				if (allowedCharges.contains(projectile))
+				{
+					auto cachePos = obj.getPosition();
+					foreach (auto it in explosives)
+					{
+						auto bomb = new ::std::Vehicle(it, cachePos[0] + random(10) - 5, cachePos[1] + random(10) - 5, cachePos[2] + random(10) - 5);
+						bomb.setPosition(cachePos[0] + random(10) - 5, cachePos[1] + random(10) - 5, cachePos[2] + random(10) - 5);
+						bomb.setVelocity(random(10) - 5, random(10) - 5, random(20) - 60);
+					}
+					SQF (new array<scalar>()) remoteExec (deref MP_BoxDestroyed, true, false);
+					auto markers = < array<::std::Marker> >this.veh.getContext().getNativeObject("markers");
+					foreach (auto marker in markers)
+					{
+						marker.delete();
+					}
+					::GVARS::AmmoCaches.deleteAt(::GVARS::AmmoCaches.find(this));
+					SQF publicVariable (deref ::GVARS::AmmoCaches);
+					obj.delete();
+				}
+				return 0;
+			}
+			static array<::std::Marker> getMarkers()
+			{
+				return < array<::std::Marker> >this.veh.getContext().getNativeObject("markers");
+			}
+			static void setMarkers(array<::std::Marker> markers)
+			{
+				this.veh.getContext().setNativeObject("markers", <nobject>markers, true);
+			}
+		}
+	}
+}
