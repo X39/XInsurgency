@@ -41,8 +41,7 @@ namespace X39
 						}
 					}
 					auto toRemove = new array<scalar>();
-					scalar i = 0;
-					for (; i < currentSquaresInPool.length(); i++)
+					for (scalar i = 0; i < currentSquaresInPool.length(); i++)
 					{
 						auto sq = currentSquaresInPool[i];
 						if (!handledSquares.contains(sq))

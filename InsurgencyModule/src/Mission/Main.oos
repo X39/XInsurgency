@@ -32,11 +32,9 @@ namespace Mission
 		scalar mapSize = SQF worldSize;
 		
 		//Loop through whole world
-		scalar i = 50;
-		for (; i < mapSize; i += 100)
+		for (scalar i = 50; i < mapSize; i += 100)
 		{
-			scalar j = 50;
-			for (; j < mapSize; j += 100)
+			for (scalar j = 50; j < mapSize; j += 100)
 			{
 				bool flag = false;
 				foreach (auto it in ::GVARS::IgnoreAreas)
@@ -84,11 +82,10 @@ namespace Mission
 	static void generateAmmmoCaches(scalar count, scalar range)
 	{
 		scalar mapSize = SQF worldSize;
-		scalar i = 0;
 		scalar curRange;
 		::GVARS::AmmoCaches = new array<::X39::Insurgency::AmmoCache>();
 		::GVARS::AmmoCachesInitialCount = count;
-		for (; i < count; i++)
+		for (scalar i = 0; i < count; i++)
 		{
 			curRange = range;
 			auto tmpToFind = new array<string>();
