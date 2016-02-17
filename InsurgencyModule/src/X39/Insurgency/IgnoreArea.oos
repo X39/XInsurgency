@@ -22,9 +22,8 @@ namespace X39
 			}
 			public bool contains(vec3 pos)
 			{
-				return (pos.getX() > this.topLeft.getX() && pos.getX() < this.botRight.getX() &&
-						pos.getY() > this.topLeft.getY() && pos.getY() < this.botRight.getY() &&
-						pos.getZ() > this.topLeft.getZ() && pos.getZ() < this.botRight.getZ());
+				return (pos.getX() >= this.topLeft.getX() && pos.getX() <= this.botRight.getX() &&
+						pos.getY() >= this.topLeft.getY() && pos.getY() <= this.botRight.getY());
 			}
 		}
 	}

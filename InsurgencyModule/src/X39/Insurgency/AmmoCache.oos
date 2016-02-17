@@ -20,6 +20,7 @@ namespace X39
 			public AmmoCache(scalar x, scalar y, scalar z)
 			{
 				this.veh = new ::std::Vehicle("O_supplyCrate_F", x, y, z + 0.001);
+				this.veh.setPosition(x, y, z);
 				SQF (this.veh) addEventHandler ("HandleDamage", SQF (SQF missionNamespace) getVariable (deref EH_HandleDamage));
 				this.setMarkers(new array<::std::Marker>());
 			}
@@ -62,22 +63,31 @@ namespace X39
 						bomb.setVelocity(random(10) - 5, random(10) - 5, random(20) - 60);
 					}
 					SQF (new array<scalar>()) remoteExec (deref MP_BoxDestroyed, true, false);
-					auto markers = < array<::std::Marker> >this.veh.getContext().getNativeObject("markers");
+					auto markers = < array<::std::Marker> >obj.getContext().getNativeObject("markers");
 					foreach (auto marker in markers)
 					{
 						marker.delete();
 					}
-					::GVARS::AmmoCaches.deleteAt(::GVARS::AmmoCaches.find(this));
+					scalar index = 0;
+					foreach (auto cache in ::GVARS::AmmoCaches)
+					{
+						if (cache.veh == obj)
+						{
+							break;
+						}
+						index++;
+					}
+					::GVARS::AmmoCaches.deleteAt(index);
 					SQF publicVariable (deref ::GVARS::AmmoCaches);
 					obj.delete();
 				}
 				return 0;
 			}
-			static array<::std::Marker> getMarkers()
+			public array<::std::Marker> getMarkers()
 			{
 				return < array<::std::Marker> >this.veh.getContext().getNativeObject("markers");
 			}
-			static void setMarkers(array<::std::Marker> markers)
+			public void setMarkers(array<::std::Marker> markers)
 			{
 				this.veh.getContext().setNativeObject("markers", <nobject>markers, true);
 			}

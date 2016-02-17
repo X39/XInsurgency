@@ -88,8 +88,6 @@ namespace Mission
 		scalar curRange;
 		::GVARS::AmmoCaches = new array<::X39::Insurgency::AmmoCache>();
 		::GVARS::AmmoCachesInitialCount = count;
-		SQF publicVariable (deref ::GVARS::AmmoCaches);
-		SQF publicVariable (deref ::GVARS::AmmoCachesInitialCount);
 		for (; i < count; i++)
 		{
 			curRange = range;
@@ -97,7 +95,9 @@ namespace Mission
 			tmpToFind.pushBack("house");
 			while (true)
 			{
-				auto tmpArray = SQF nearestObjects(new vec3(random(mapSize), random(mapSize), 0), tmpToFind, 100) as array<::std::base::VehicleBase>;
+				auto tmpArray = new array<::std::base::VehicleBase>();
+				while (tmpArray.length() == 0)
+					tmpArray = SQF nearestObjects(new vec3(random(mapSize), random(mapSize), 0), tmpToFind, 100) as array<::std::base::VehicleBase>;
 				auto house = tmpArray[floor(random(tmpArray.length()))];
 				bool flag = false;
 				foreach (auto it in ::GVARS::AmmoCaches)
@@ -111,13 +111,18 @@ namespace Mission
 				if (!flag)
 				{
 					auto positions = ::X39::Insurgency::receiveAllBuildingPositions(house);
-					auto position = positions[floor(random(positions.length()))];
-					auto cache = new ::X39::Insurgency::AmmoCache(position.getX(), position.getY(), position.getZ() + 0.001);
-					::GVARS::AmmoCaches.pushBack(cache);
-					break;
+					if (positions.length() > 0)
+					{
+						auto position = positions[floor(random(positions.length()))];
+						auto cache = new ::X39::Insurgency::AmmoCache(position.getX(), position.getY(), position.getZ() + 0.001);
+						::GVARS::AmmoCaches.pushBack(cache);
+						break;
+					}
 				}
 			}
 		}
+		SQF publicVariable (deref ::GVARS::AmmoCaches);
+		SQF publicVariable (deref ::GVARS::AmmoCachesInitialCount);
 	}
 #ifdef DEBUG
 	static fnc ::std::Context createContext()
@@ -184,10 +189,10 @@ namespace Mission
 				auto size = it.getSize();
 				auto pos = it.getPosition();
 				
-				scalar x = size[0];
-				scalar y = size[1];
-				scalar w = pos[0];
-				scalar h = pos[1];
+				scalar x = pos[0];
+				scalar y = pos[1];
+				scalar w = size[0];
+				scalar h = size[1];
 				
 				auto topLeft = new vec3(x - w / 2, y - h / 2, 0);
 				auto botRight = new vec3(x + w / 2, y + h / 2, 0);
