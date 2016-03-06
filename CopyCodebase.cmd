@@ -22,7 +22,7 @@ FOR /F %%f IN ('DIR /AD/B/D') DO (
 	) else (
 		IF EXIST "%GITPATH%\!FILE!\.COPYTOHERE" (
 			ECHO "COPY CODEBASE TO '!FILE!'"
-			xcopy /S "%GITPATH%\codeBase\*" "%GITPATH%\!FILE!\"
+			xcopy /S /Y "%GITPATH%\codeBase\*" "%GITPATH%\!FILE!\"
 		)
 	)
 )
