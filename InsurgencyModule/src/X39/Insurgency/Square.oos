@@ -3,6 +3,7 @@
 using ::std::Marker
 using ::std::base::VehicleBase
 using ::std::Man
+using ::std::Vehicle
 using ::std::Group
 
 using ::GVARS
@@ -121,16 +122,26 @@ namespace X39
 				arr.pushBack(man);
 				this.setLocalUnits(arr);
 			}
-			public void removeFromLocalUnits(::std::Man man)
+			public void removeFromLocalUnits(::std::Man man) throwing
 			{
 				auto arr = this.getLocalUnits();
 				scalar index = arr.find(man);
 				if(index < 0)
-					throw "UnitNotFound";
+					throw new Exception("UnitNotFound");
 				arr.deleteAt(index);
 				this.setLocalUnits(arr);
 			}
-						
+			
+			static void EH_Killed(::std::Man dead)
+			{
+				dead.getContext().setScalar("KillTime", time(), false);
+				if (random(100) < 20)
+				{
+					auto intel = new ::std::Vehicle("Land_File1_F", dead.getPosition());
+                    intel.getContext().setBool("isIntel", true, true);
+				}
+			}
+			
 			public void createUnit()
 			{
 				::std::base::VehicleBase house = this.houses[floor(random(this.houses.length()))];
@@ -139,7 +150,7 @@ namespace X39
 				::std::Man unit = new ::std::Man(::GVARS::missionGroup, unitClassName, pos[floor(random(pos.length()))]);
 				SQF doStop (unit);
 				unit.getContext().setString("owner", SQF getPlayerUID (SQF player) as string, true);
-				SQF (unit) addEventHandler ("Killed", "(_this select 0) setVariable ['KillTime', time, true];");
+				SQF (unit) addEventHandler ("Killed", SQF (SQF missionNamespace) getVariable (deref EH_Killed));
 				SQF (unit) setVariable ("KillTime", -1, true);
 				
 				this.addUnitCount(1);
@@ -216,6 +227,7 @@ namespace X39
 					this.isCleared = false;
 					this.marker.setColor(::std::Marker::Color::ColorRed);
 				}
+                this.publish();
 			}
 			
 			public void publish()

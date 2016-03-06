@@ -131,7 +131,7 @@ namespace Mission
 	endFnc
 	static void postInit()
 	{
-		auto context = createContext();
+		auto context = SQF (SQF MissionNamespace) getVariable ("MISSIONCONTEXT");
 		
 		auto side = new ::std::Side();
 		auto unitClasses = new array<string>();
@@ -174,14 +174,13 @@ namespace Mission
 		::GVARS::AmmoCachesIntelDistances.pushBack(150);
 		::GVARS::AmmoCachesIntelDistances.pushBack(100);
 		::GVARS::AmmoCachesIntelDistances.pushBack(50);
+        ::GVARS::missionGroup = new ::std::Group(side);
 		if (isServer())
 		{
 			SQF createCenter (side);
 			::GVARS::missionContext.setBool("MissionReady", false, true);
-			::GVARS::missionGroup = new ::std::Group(side);
-			SQF publicVariable (deref ::GVARS::missionGroup);
 			
-			foreach(auto it in markerArray)
+			foreach (auto it in markerArray)
 			{
 				auto size = it.getSize();
 				auto pos = it.getPosition();
@@ -191,8 +190,8 @@ namespace Mission
 				scalar w = size[0];
 				scalar h = size[1];
 				
-				auto topLeft = new vec3(x - w / 2, y - h / 2, 0);
-				auto botRight = new vec3(x + w / 2, y + h / 2, 0);
+				auto topLeft = new vec3(x - w, y - h, 0);
+				auto botRight = new vec3(x + w, y + h, 0);
 				auto ia = new ::X39::Insurgency::IgnoreArea(topLeft, botRight);
 				::GVARS::IgnoreAreas.pushBack(ia);
 				it.delete();

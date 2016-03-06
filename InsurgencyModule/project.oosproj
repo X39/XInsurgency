@@ -8,6 +8,6 @@
     <buildfolder>.\build\</buildfolder>
     <srcfolder>.\src\</srcfolder>
   </project>
-  <compiler version="0.7.3-ALPHA" />
+  <compiler version="0.7.4-ALPHA" />
   <ressources />
 </root>

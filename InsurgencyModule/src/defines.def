@@ -1,4 +1,4 @@
 //General defines
 #define SEARCHRADIUS 70.7106781185
 
-#define DEBUG
+//#define DEBUG
