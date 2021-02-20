@@ -1,0 +1,191 @@
+#include "config.sqc"
+
+if (isNil("XINS_READY")) { XINS_READY = false; }
+
+final function XINS_IsSquare(object vehicle)
+{
+    return vehicle.getVariable("XINS", false);
+}
+final function XINS_GetSquare(object vehicle)
+{
+    return vehicle.getVariable("XINS_SQUARE", false);
+}
+
+final function XINS_CreateSquareForAllBuildings()
+{
+    private result = [];
+    private squares = {};
+    private mapSize = worldSize;
+    for xPos from 50 to mapSize step 100
+    for yPos from 50 to mapSize step 100
+    {
+        if (XINS.IgnoreAreas.findif(function (x: "_x") { return _x.contained([xPos, yPos]); }) == -1)
+        {
+            private houses = nearestObjects([xPos, yPos, 0], ["house"], 70.7106781185);
+            if (count(houses) > 0)
+            {
+                private marker = $"XINS-{xPos}-{yPos}";
+                createMarker(marker, [50 + (xPos - (xPos % 100)), 50 + (yPos - (yPos % 100)), 0]);
+                marker.setMarkerShape("RECTANGLE");
+                marker.setMarkerBrush("Solid");
+                marker.setMarkerType("Empty");
+                marker.setMarkerSize(50, 50);
+                marker.setMarkerAlpha(0.75);
+                marker.setMarkerColor("ColorRed");
+
+                private emptyObj = "Land_HelipadEmpty_F".createVehicle(xPos, yPos, 0);
+                emptyObj.setVariable("XINS", true, true);
+
+                private square = {
+                    X: xPos,
+                    Y: yPos,
+                    Marker: marker,
+                    EmptyObj: emptyObj,
+                    Publish: function()
+                    {
+                        this.EmptyObj.setVariable("XINS_SQUARE", this, true);
+                    },
+                    GetCleared: false,
+                    SetCleared: function(boolean flag)
+                    {
+                        if (flag)
+                        {
+                            this.GetCleared = true;
+                            this.Marker.setMarkerColor("ColorGreen");
+                        }
+                        else
+                        {
+                            this.GetCleared = false;
+                            this.Marker.setMarkerColor("ColorRed");
+                        }
+                        this.Publish();
+                    },
+                    GetUnits: function() { return this.EmptyObj.getVariable("XINS_Units", []); },
+                    SetUnits: function(array units) { this.EmptyObj.setVariable("XINS_Units", units, true); }
+                };
+                squares.set([xPos, yPos], square);
+                results.pushBack(square);
+            }
+        }
+    }
+
+    // Iterate through all squares, setting their maximum units
+    for (square : results)
+    {
+        private count = 0;
+        for xPos from -1 to 1
+        for yPos from -1 to 1
+        {
+            private res = squares.get([square.X + xPos, square.Y + yPos]);
+            if (!isNil("_res"))
+            {
+                count++;
+            }
+        }
+        if (count < XINS.Squares.MinUnitsPerSquare)
+        {
+            count = XINS.Squares.MinUnitsPerSquare;
+        }
+        else if (count > XINS.Squares.MaxUnitsPerSquare)
+        {
+            count = XINS.Squares.MaxUnitsPerSquare;
+        }
+        square.MaxUnits = count;
+    }
+    XINS.Squares.Map = squares;
+    XINS.Squares.Data = results;
+}
+
+final function XINS_CreateCaches()
+{
+
+}
+
+final function XINS_ServerLoop()
+{
+    for (auto player : allPlayers)
+    {
+        private pos = position(player);
+
+
+        for xPos from (pos[0] - (XINS.Squares.DespawnDistance + 100) / 2) to (pos[1] + (XINS.Squares.DespawnDistance + 100) / 2) step 100
+        for yPos from (pos[0] - (XINS.Squares.DespawnDistance + 100) / 2) to (pos[1] + (XINS.Squares.DespawnDistance + 100) / 2) step 100
+        {
+            // Get relative square position
+            private pos = [50 + (xPos - (xPos % 100)), 50 + (yPos - (yPos % 100))];
+            
+        }
+
+    }
+}
+
+final function XINS_PlayerLoop()
+{
+
+}
+
+final function XINS_Initialize()
+{
+    if (isServer)
+    {
+        private replace = [];
+        for (ignoreArea : XINS.IgnoreAreas)
+        {
+            private size = markerSize(ignoreArea);
+            private pos = markerPos(ignoreArea);
+            private topLeft = [pos[0] - size[0], pos[1] - size[1]];
+            private botRight = [pos[0] + size[0], pos[1] + size[1]];
+            private ignoreRegion = {
+                topLeft: [pos[0] - size[0], pos[1] - size[1]],
+                botRight: [pos[0] + size[0], pos[1] + size[1]],
+                contained: function (array pos) {
+                    return pos[0] >= this.topLeft[0]
+                        && pos[0] <= this.botRight[0]
+                        && pos[1] >= this.topLeft[1]
+                        && pos[1] <= this.botRight[1];
+                }
+            };
+            replace.pushBack(ignoreRegion);
+        }
+        XINS.IgnoreAreas = replace;
+        XINS_CreateSquareForAllBuildings();
+        XINS.Caches.Data = XINS_CreateCaches();
+
+        // ToDo: Put into per frame handler
+        [].spawn(XINS_ServerLoop);
+
+        missionNamespace.setVariable("XINS_READY", true, true);
+    }
+    if (!isDedicated)
+    {
+        // ToDo: Put into per frame handler
+        [].spawn(XINS_PlayerLoop);
+    }
+}
+
+
+systemChat("XInsurgency - Version 2.0");
+hint("Welcome to XInsurgency! Mission Start could have large delays depending on map size.");
+
+systemChat("It could happen that AMMO-CACHES spawn inside of the base");
+
+
+
+
+// ToDo: Find out where this is actually auto-saving the inventory
+// ToDo: Rework method
+if (!isDedicated)
+{
+	[].spawn(function() {
+		waitUntil(function() { return !isNil(function() { return player; }); });
+		waitUntil(function() { return !isNull(player); });
+		waitUntil(function() { return alive(player); });
+		player.addEventHandler("Respawn",  function(object unit, object corpse)
+        {
+            if (!isNil("Mission_var_SavedInventory"))
+            {
+                BIS_fnc_loadInventory(unit, missionNamespace, Mission_var_SavedInventory);
+            }
+        });
+	});
+}
